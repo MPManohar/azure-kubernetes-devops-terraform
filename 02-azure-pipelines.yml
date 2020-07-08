@@ -10,8 +10,4 @@ stages:
   jobs:
   - job: Build
 	  steps: 
-	  - script: echo "Mvn Install"   sh "mnv install"
-  - job: Compile		     		  
-    steps: 
-	  - script: echo "Mvn Compile" sh "mnv clean compile"
-			  
+	  - bash: echo "Mvn Install"   sh "mnv install"
