@@ -14,5 +14,6 @@ stages:
   jobs: 
   - job: Build 
     steps: 
-    - script: sh "mvn install"
-      displayName: echo "Mvn install successful"
+    - script:  
+        mvn compile
+      displayName: echo "mvn clean compile successfull"
