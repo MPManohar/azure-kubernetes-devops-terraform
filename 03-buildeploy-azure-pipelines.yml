@@ -1,0 +1,73 @@
+# Docker
+# Build a Docker image 
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- master
+
+resources:
+- repo: self
+
+variables:
+  tag: '$(Build.BuildId)'
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: Build 
+  jobs: 
+  - job: Build 
+    steps: 
+    - script:  
+        mvn install 
+      displayName: echo "mvn install successfull"
+    - script:  
+        mvn compile 
+      displayName: echo "mvn clean compile successfull"
+
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+        testRunTitle: 'Integrate test'
+        javaHomeOption: 'JDKVersion'
+        mavenVersionOption: 'Default'
+        mavenAuthenticateFeed: false
+        effectivePomSkip: false
+        sonarQubeRunAnalysis: false
+        checkStyleRunAnalysis: true
+        pmdRunAnalysis: true
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+    - script: 
+        mvn package 
+      displayName: echo " Mvn package successful"
+
+- stage: Deploy
+  jobs: 
+  - deployment: Deploy 
+    environment: Deploy
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: echo " Docker Build "
+
+          - task: Docker@2
+            inputs:
+              containerRegistry: 'm01051980.docker.hub'
+              repository: 'm01051980/deployproj'
+              command: 'buildAndPush'
+              Dockerfile: '**/Dockerfile'
