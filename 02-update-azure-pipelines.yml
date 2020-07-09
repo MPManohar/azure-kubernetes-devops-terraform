@@ -15,8 +15,14 @@ stages:
   - job: Build 
     steps: 
     - script:  
-        mvn compile
+        mvn compile 
       displayName: echo "mvn clean compile successfull"
+    - script: 
+        mvn failsafe:integration-test failsafe:verify
+      displayName: echo "Test integration Successful"
+    - script: 
+        mvn package 
+      displayName: echo " Mvn package successful"
     - task: Maven@3
       inputs:
         mavenPomFile: 'pom.xml'
